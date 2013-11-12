@@ -3,7 +3,7 @@ package Role::Singleton;
 ## no critic (RequireUseStrict) - Role::Tiny does strict
 use Role::Tiny;
 
-$Role::Singleton::VERSION = '0.1';
+$Role::Singleton::VERSION = '0.2';
 
 sub instance { goto &singleton; }
 
@@ -39,7 +39,7 @@ Role::Singleton - Add a singleton constructor to your class
 
 =head1 VERSION
 
-This document describes Role::Singleton version 0.1
+This document describes Role::Singleton version 0.2
 
 =head1 SYNOPSIS
 

@@ -3,19 +3,50 @@ package Role::Multiton::New;
 ## no critic (RequireUseStrict) - Role::Tiny does strict
 use Role::Tiny;
 
-$Role::Multiton::New::VERSION = '0.1';
+$Role::Multiton::New::VERSION = '0.2';
 
 use Role::_Multiton ();
 
-around 'new' => sub {
-    my ( $orig, $self, @args ) = @_;
+sub turn_new_into_multiton {
+    my ( $self, @args ) = @_;
+    my $class = ref($self);
+    die "turn_new_into_multiton() must be called by an object" if !$class;
 
-    my $arg_key = Role::_Multiton::_get_arg_key( \@args );
+    no strict 'refs';    ## no critic
 
+    die "turn_new_into_multiton() can not be called after turn_new_into_singleton()" if ${ $class . '::_singleton_orig_new' };
+
+    my $arg_key     = Role::_Multiton::_get_arg_key( \@args );
     my $multiton_hr = Role::_Multiton::_get_multiton_lookup_hr($self);
 
-    return $multiton_hr->{$arg_key} ||= $orig->( $self, @args );
-};
+    if ( ${ $class . '::_multiton_orig_new' } ) {
+        $multiton_hr->{$arg_key} = $self;
+    }
+    else {
+        ${ $class . '::_multiton_orig_new' } = \&{ $class . '::new' };
+        $multiton_hr->{$arg_key} = $self;
+
+        no warnings 'redefine';
+        *{ $class . '::new' } = sub {
+            my ( $self, @args ) = @_;
+            my $arg_key     = Role::_Multiton::_get_arg_key( \@args );
+            my $multiton_hr = Role::_Multiton::_get_multiton_lookup_hr($self);
+            return $multiton_hr->{$arg_key} ||= ${ $class . '::_multiton_orig_new' }->( $self, @args );
+          }
+    }
+
+    return $multiton_hr->{$arg_key};
+}
+
+# around 'new' => sub {
+#     my ( $orig, $self, @args ) = @_;
+#
+#     my $arg_key = Role::_Multiton::_get_arg_key( \@args );
+#
+#     my $multiton_hr = Role::_Multiton::_get_multiton_lookup_hr($self);
+#
+#     return $multiton_hr->{$arg_key} ||= $orig->( $self, @args );
+# };
 
 1;
 
@@ -29,7 +60,7 @@ Role::Multiton::New - Turn your new() into a multiton constructor
 
 =head1 VERSION
 
-This document describes Role::Multiton::New version 0.1
+This document describes Role::Multiton::New version 0.2
 
 =head1 SYNOPSIS
 
@@ -40,7 +71,7 @@ Object:
     ## no critic (RequireUseStrict) - Moo does strict
     use Moo;
 
-    with 'Role::Multiton::New;
+    with 'Role::Multiton::New';
 
     …
 
@@ -48,15 +79,29 @@ Code:
 
     use ZeroCool;
 
-    my $z3r0 = ZeroCool->new(…); # returns a multiton (see Role::Multiton if you want to keep new() as-is and add multition support)
+    my $z3r0 = ZeroCool->new(…)->turn_new_into_multiton; # from now on new() returns a multiton (see Role::Multiton if you want to keep new() as-is and add multition support)
 
 =head1 DESCRIPTION
 
-See L<Role::Multiton> for more information on multitons.
+See L<Role::Multiton> for more information on multitons. Then see INTERFACE for specifics of what this module does.
 
 =head1 INTERFACE 
 
-This role turns new() into a multiton constructor.
+This role allows you to turn new() into a multiton constructor.
+
+This is useful, for example, when a multiton makes sense but you can't change all the new() calls to singleton() or instance(). It might also be useful for testing so you can reliably operate on the same object.
+
+Unfortunately one can not do this automatically via, say, C<around 'new'> because new() is built up along the way. See  L<rt 89239|https://rt.cpan.org/Ticket/Display.html?id=89239> for some specifics.
+
+The seeming quantum state of new() is fixed however after it is called once. At that point it is possible to operate on it which is what turn_new_into_multiton() does.
+
+You'll probably want to only call this on the final object as calling it on any supers will effect subsequent extenders.
+
+=head2 turn_new_into_multiton()
+
+This must be called with an object (to ensure new() has been called and is final). It returns the object so that it is safe to call in a chain the SYNOPSIS.
+
+Subsequent calls will result in the multiton object being changed to the caller of turn_new_into_singleton(), probably a no-op most of the time.
 
 =head1 DIAGNOSTICS
 

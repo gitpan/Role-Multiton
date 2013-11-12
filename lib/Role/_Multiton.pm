@@ -3,7 +3,7 @@ package Role::_Multiton;
 use strict;
 use warnings;
 
-$Role::_Multiton::VERSION = '0.1';
+$Role::_Multiton::VERSION = '0.2';
 
 sub _get_multiton_lookup_hr {
     my ($self) = @_;
@@ -59,7 +59,7 @@ Role::_Multiton - internal util for Role::Multiton[::*]
 
 =head1 VERSION
 
-This document describes Role::_Multiton version 0.1
+This document describes Role::_Multiton version 0.2
 
 =head1 SYNOPSIS
 

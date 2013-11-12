@@ -3,7 +3,7 @@ package Role::Multiton;
 ## no critic (RequireUseStrict) - Role::Tiny does strict
 use Role::Tiny;
 
-$Role::Multiton::VERSION = '0.1';
+$Role::Multiton::VERSION = '0.2';
 
 use Role::_Multiton ();
 
@@ -57,7 +57,7 @@ Role::Multiton - Add a multiton constructor to your class
 
 =head1 VERSION
 
-This document describes Role::Multiton version 0.1
+This document describes Role::Multiton version 0.2
 
 =head1 SYNOPSIS
 
@@ -82,7 +82,7 @@ Code:
 
 =head1 DESCRIPTION
 
-See L<http://en.wikipedia.org/wiki/Multiton_pattern> for info about mutltitons.
+See L<http://en.wikipedia.org/wiki/Multiton_pattern> for info about multitons.
 
 =head1 INTERFACE 
 

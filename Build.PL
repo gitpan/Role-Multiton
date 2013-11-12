@@ -8,9 +8,10 @@ my $builder = Module::Build->new(
     dist_author       => 'Daniel Muey <http://drmuey.com/cpan_contact.pl>',
     dist_version_from => 'lib/Role/Multiton.pm',
     requires          => {
-        'Test::More' => 0,    # testing
-        'Moo'        => 0,    # testing
-        'Role::Tiny' => 0,
+        'Test::More'      => 0,    # testing
+        'Moo'             => 0,    # testing
+        'Test::Exception' => 0,    # testing
+        'Role::Tiny'      => 0,
     },
     add_to_cleanup => ['Role-Multiton-*'],
 );
